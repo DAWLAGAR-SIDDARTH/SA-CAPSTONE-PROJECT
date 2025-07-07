@@ -148,7 +148,13 @@ Each component was weighted based on assumed real-world influence and scaled to 
 * No use of external ML libraries, only NumPy and Pandas
 
 ---
+## Sample Output Graph
 
+![Price Trends for Parking Lot](![download111111](https://github.com/user-attachments/assets/99050d3a-7cfc-46da-9c8a-cdc7eada6a04))
+
+![live pricing plot]![download22222](https://github.com/user-attachments/assets/7448ca31-85fa-41d1-b09b-e4b004b44129)
+
+---
 ## Real-Time System with Pathway
 
 * Pathway ingests dataset using table\_from\_pandas
@@ -177,5 +183,5 @@ Planned enhancements include implementing Model 3 with competition-aware logic a
 
 ## Author
 
-Team Summer Analytics 2025
-B.Sc. Data Science, Class of 2025
+DAWLAGAR SIDDARATH
+email : d.siddarth286@gmail.com
