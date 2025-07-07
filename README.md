@@ -116,7 +116,3 @@ The project code is structured into the following conceptual phases:
 * **Deployment:** Deploy the Pathway pipeline on robust cloud infrastructure (AWS, GCP, Azure) for scalability and fault tolerance.
 * **Comprehensive Monitoring:** Implement detailed logging, metrics, and alerting for the entire system.
 * **A/B Testing Framework:** Systematically test different pricing strategies against each other.
-
-## License
-
-This project is open-source and available under the [MIT License](LICENSE.md) (or specify your preferred license).
