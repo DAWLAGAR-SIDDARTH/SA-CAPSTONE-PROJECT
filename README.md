@@ -1,102 +1,181 @@
-# Dynamic Pricing for Urban Parking Lots using Pathway
+# Dynamic Pricing for Urban Parking Lots
 
 ## Project Overview
 
-This project develops a dynamic pricing model for urban parking spaces, designed to adjust prices in real-time based on various influencing factors. The primary goal is to optimize parking prices to ensure efficient space utilization, manage demand, and maximize revenue, while maintaining a smooth and explainable pricing variation.
+This project is part of the Summer Analytics 2025 Capstone, hosted by the Consulting & Analytics Club (CAC) in collaboration with Pathway. The objective is to develop an intelligent, real-time dynamic pricing model for 14 urban parking spaces using a simulated data stream.
 
-The system simulates real-time data ingestion and processing using **Pathway**, allowing for continuous price predictions and output.
+The system is built using:
 
-## Background & Motivation
+* Python (NumPy, Pandas)
+* Pathway (for real-time stream processing)
+* Bokeh / Plotly / Matplotlib (for visualization)
 
-Urban parking spaces are a limited and highly demanded resource. Static pricing often leads to either underutilization or overcrowding. This project addresses these challenges by simulating a real-time pricing system using:
-* Real-time streaming with Pathway
-* Demand-based pricing logic (Model 2)
-* Basic economic factors like queue length, traffic, and vehicle type
+---
 
-## Core Features
+## Problem Statement
 
-* **Real-time Price Calculation:** Prices are dynamically computed based on incoming data streams using Pathway.
-* **Multi-factor Pricing Logic (Demand-Based):** The pricing model incorporates current parking conditions, including:
-    * Occupancy rate
-    * Queue length
-    * Nearby traffic conditions
-    * Special event indicators
-    * Vehicle type
-* **Base Price Integration:** All pricing calculations stem from a defined base price (e.g., $10).
-* **Output to CSV:** The computed real-time prices are continuously written to a `pricing_output.csv` file.
-* **Basic Visualization:** Includes a simple `matplotlib` plot to visualize price trends from the generated output CSV.
+Static parking prices often lead to inefficiencies like overcrowding or underutilization. The aim of this project is to build a pricing engine that adapts in real-time based on:
 
-## Pricing Model Implemented
+* Parking occupancy
+* Queue length
+* Nearby traffic
+* Special day indicators
+* Type of vehicle
+* Competitor parking lot prices (in the advanced model)
 
-This notebook specifically implements a **Demand-Based Price Function (referred to as Model 2)**. This model constructs a mathematical demand function that incorporates multiple key features. The calculated demand then directly influences the price adjustment from the base price.
+---
 
-### Model 2: Demand-Based Price Function
+## Objectives
 
-This model dynamically calculates price based on a set formula using the incoming data.
+* Build three pricing models from scratch using Python.
+* Simulate real-time data ingestion and price prediction using Pathway.
+* Provide live and static visualizations of pricing behavior.
+* Ensure pricing is stable, explainable, and responsive to demand and competition.
 
-* **Demand Factors Used:** Occupancy, Capacity, QueueLength, TrafficConditionNearby, IsSpecialDay, and VehicleType.
-* **Traffic Mapping:**
-    * `low`: 1
-    * `medium`: 2
-    * `high`: 3
-* **Vehicle Type Weights:**
-    * `car`: 1.0
-    * `bike`: 0.7
-    * `truck`: 1.5
-* **Conceptual Demand Calculation (within `compute_price` UDF):**
-    `demand = (0.5 * (Occupancy / Capacity) + 0.3 * QueueLength - 0.2 * traffic + 0.1 * IsSpecialDay + 0.05 * vehicle_weight)`
-* **Price Calculation:** The demand is normalized (clamped between 0 and 1), and then the price is calculated as `round(10 * (1 + 0.2 * normalized), 2)`. This ensures prices fluctuate around the base price ($10) based on demand.
+---
 
-## Technology Stack
+## Tech Stack
 
-* **Python:** Core programming language.
-* **Pandas & NumPy:** For data manipulation and numerical operations.
-* **Pathway:** For real-time data ingestion, stream processing, and continuous prediction emission.
-* **Matplotlib:** For basic visualization of price trends.
+* **Programming Language:** Python
+* **Libraries:** NumPy, Pandas, Matplotlib, Plotly, Bokeh
+* **Real-Time Framework:** Pathway
+* **Data Format:** CSV (stream simulated from static data)
+* **Execution Environment:** Jupyter Notebook / Google Colab
 
-## Getting Started
+---
 
-To run this project, you will need a Google Colab environment and the `dataset.csv` file.
+## Architecture Overview
 
-### Setup (Google Colab)
+### Data Flow Architecture:
 
-1.  **Upload `dataset.csv`:** Upload your `dataset.csv` file directly to your Google Colab environment (e.g., by dragging it to the files sidebar).
-2.  **Open a New Notebook:** Create a brand new Google Colab notebook.
-3.  **Install Dependencies:** Run the following commands in the first code cell of your Colab notebook to install all necessary libraries:
-    ```bash
-    !pip install pandas numpy scipy pathway matplotlib
-    ```
-    * **Important Note on Pathway:** If you encounter `AttributeError` issues with Pathway, please try running `!pip install pathway` in a **fresh Colab notebook** as the very first step. Environmental conflicts can occur.
+```plaintext
+ dataset.csv (raw parking data)
+         │
+         ▼
+   Preprocessing with Pandas
+         │
+         ▼
+ Streaming simulation with Pathway
+         │
+         ▼
+ Compute Pricing using Demand Function (Model 2)
+         │
+         ├──► Write to pricing_output.csv (streamed output)
+         └──► Push to Plotly/Matplotlib for visualization
+```
 
-4.  **Copy Code:** Copy the code provided cell-by-cell from the `SA_CAPSTONE_PROJECT.ipynb` notebook into corresponding cells in your Colab notebook.
+### Components:
 
-### Running the Project
+* **Input**: Historical parking data (CSV)
+* **Processing**: Pathway simulates real-time stream
+* **Computation**: Demand-based pricing UDF in Pathway
+* **Output**: CSV + dynamic plots
 
-Follow the structure of the provided notebook:
+---
 
-1.  **Initial Setup and Data Loading:** Run the cells that import libraries, load `dataset.csv`, and perform initial data preprocessing (including `timestamp`, `lot_id` creation, and `dropna`).
-2.  **Define Pathway Schema and UDF:** Run the cells that define the `ParkingInput` schema and the `compute_price` Pathway UDF.
-3.  **Ingest Data and Compute Prices with Pathway:** Run the cells that use `pw.debug.table_from_pandas` to ingest your prepared DataFrame into Pathway and apply the `compute_price` UDF to create a `pricing` stream.
-4.  **Write Output:** Run the cell that uses `pw.io.csv.write` to specify the output CSV file (`pricing_output.csv`).
-5.  **Start Pathway Execution:** **Uncomment and run the `pw.run()` cell**. This will start the Pathway pipeline, process the data, and continuously write the pricing results to `pricing_output.csv`.
-6.  **Visualize Results:** Run the final cells that use `matplotlib` to load `pricing_output.csv` and plot the price trends for a selected parking lot.
+## Models Implemented
 
-## Assumptions Made in the Notebook
+### Model 1: Baseline Linear Model
 
-* **Dataset Availability:** Assumes the `dataset.csv` file is present in the Colab environment with expected columns (`LastUpdatedDate`, `LastUpdatedTime`, `SystemCodeNumber`, `Occupancy`, `Capacity`, `QueueLength`, `TrafficConditionNearby`, `IsSpecialDay`, `VehicleType`, `Latitude`, `Longitude`).
-* **Vehicle Type Weights:** `car = 1.0`, `bike = 0.7`, `truck = 1.5`.
-* **Traffic Mapping:** `low = 1`, `medium = 2`, `high = 3`.
-* **Base Price:** The base price for calculations is hardcoded as `10`.
-* **Coefficients:** The coefficients in the `demand` calculation (e.g., `0.5`, `0.3`, `-0.2`, `0.1`, `0.05`) are fixed for demonstration.
-* **Simulated Stream:** `pw.debug.table_from_pandas` is used to simulate a real-time stream from a static DataFrame.
+* Formula: Price(t+1) = Price(t) + alpha \* (Occupancy / Capacity)
+* Acts as a simple benchmark model.
 
-## Future Enhancements (Conceptual)
+### Model 2: Demand-Based Pricing Model (Implemented)
 
-While not fully implemented in the provided notebook, future directions for this project could include:
+* Formula:
+  Demand = 0.5 \* (Occupancy / Capacity) +
+  0.3 \* QueueLength -
+  0.2 \* TrafficLevel +
+  0.1 \* IsSpecialDay +
+  0.05 \* VehicleTypeWeight
 
-* **Full Implementation of Other Models:** Integrate `Model 1 (Baseline Linear)` and `Model 3 (Competitive Pricing)` with Pathway's stateful and join capabilities, which would involve more complex Pathway operations for `previous_price` and spatial lookups.
-* **Live Data Source Integration:** Connect Pathway to actual live data streams (e.g., Kafka, IoT platforms) for continuous, real-time operation.
-* **Advanced Analytics:** Incorporate more sophisticated machine learning models for predictive analytics (e.g., predicting future occupancy) to inform pricing decisions.
-* **Interactive Dashboard:** Develop a comprehensive, real-time interactive dashboard using Bokeh (beyond the basic `matplotlib` plot) or other visualization libraries, connected directly to the Pathway stream.
-* **Optimization Algorithms:** Implement algorithms to optimize pricing for revenue maximization or demand management, possibly using Reinforcement Learning.
-* **Deployment:** Set up the Pathway pipeline on a scalable cloud infrastructure for production use.
+  Price = BasePrice \* (1 + 0.2 \* normalized\_demand)
+
+* Dynamically adjusts prices based on real-world features.
+
+### Model 3: Competitive Pricing Model (Planned)
+
+* Will consider:
+
+  * Geographic proximity of lots using coordinates
+  * Nearby lot prices
+  * Rerouting suggestions for full or expensive lots
+
+---
+
+## Visualizations
+
+### Static Plots
+
+* Matplotlib line plots for each parking lot
+* Simulated real-time updates using IPython display and clear\_output
+
+### Simulated Live Plot
+
+* Plotly-based chart updating in a loop for 10 seconds
+* Displays the latest 20 pricing data points
+
+---
+
+## Demand Function Explanation
+
+The demand function is a linear combination of:
+
+* Occupancy rate: Reflects current usage
+* Queue length: Indicates pressure on the lot
+* Traffic conditions: High traffic reduces demand
+* Special day flag: Events or holidays increase demand
+* Vehicle type: Trucks consume more space than bikes
+
+Each component was weighted based on assumed real-world influence and scaled to a normalized value to avoid extreme price swings.
+
+---
+
+## Assumptions
+
+* Base price is \$10
+* Prices are bounded between \$10 and \$12 using normalization
+* Vehicle weights:
+
+  * Car = 1.0
+  * Bike = 0.7
+  * Truck = 1.5
+* Traffic level:
+
+  * Low = 1
+  * Medium = 2
+  * High = 3
+* No use of external ML libraries, only NumPy and Pandas
+
+---
+
+## Real-Time System with Pathway
+
+* Pathway ingests dataset using table\_from\_pandas
+* Computes prices on-the-fly for each lot and timestamp
+* Writes streaming results to pricing\_output.csv
+* Visualized using live Plotly and Matplotlib scripts
+
+---
+
+## Submission Components
+
+* Dynamic\_Pricing\_Pathway\_Final.ipynb: Fully-commented Jupyter notebook
+* pricing\_output.csv: Output file for visualizations
+* Inline and simulated real-time plots in notebook using Plotly and Matplotlib
+* This report as README.md or supporting PDF
+
+---
+
+## Conclusion
+
+We successfully built a real-time dynamic pricing engine that adjusts based on occupancy, queue, traffic, and vehicle type. The demand-based model (Model 2) provides stable and explainable price changes. Visualizations validate pricing behavior.
+
+Planned enhancements include implementing Model 3 with competition-aware logic and integrating rerouting logic for full lots.
+
+---
+
+## Author
+
+Team Summer Analytics 2025
+B.Sc. Data Science, Class of 2025
