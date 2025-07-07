@@ -46,30 +46,25 @@ Static parking prices often lead to inefficiencies like overcrowding or underuti
 
 ## Architecture Overview
 
-### Data Flow Architecture:
+### Architecture Diagram (Mermaid Format)
 
-```plaintext
- dataset.csv (raw parking data)
-         │
-         ▼
-   Preprocessing with Pandas
-         │
-         ▼
- Streaming simulation with Pathway
-         │
-         ▼
- Compute Pricing using Demand Function (Model 2)
-         │
-         ├──► Write to pricing_output.csv (streamed output)
-         └──► Push to Plotly/Matplotlib/bokeh for visualization
+```mermaid
+graph TD
+    A[dataset.csv] --> B[Data Preprocessing with Pandas]
+    B --> C[Pathway Stream Ingestion]
+    C --> D[Demand-Based Price Calculation]
+    D --> E[Write to pricing_output.csv]
+    D --> F[Push to Plotly / Matplotlib Visualization]
 ```
 
-### Components:
+### Workflow Explanation
 
-* **Input**: Historical parking data (CSV)
-* **Processing**: Pathway simulates real-time stream
-* **Computation**: Demand-based pricing UDF in Pathway
-* **Output**: CSV + dynamic plots
+1. Raw data is loaded from `dataset.csv`.
+2. Data is preprocessed using Pandas.
+3. Pathway simulates real-time stream ingestion using `table_from_pandas`.
+4. Pricing logic (Model 2 - Demand Function) is applied on-the-fly.
+5. Prices are written to `pricing_output.csv`.
+6. Prices are visualized using Plotly (for live) and Matplotlib (for static) plots.
 
 ---
 
@@ -148,13 +143,7 @@ Each component was weighted based on assumed real-world influence and scaled to 
 * No use of external ML libraries, only NumPy and Pandas
 
 ---
-## Sample Output Graph
 
-Price Trends for Parking Lot![download111111](https://github.com/user-attachments/assets/99050d3a-7cfc-46da-9c8a-cdc7eada6a04)
-
-live pricing plot![download22222](https://github.com/user-attachments/assets/7448ca31-85fa-41d1-b09b-e4b004b44129)
-
----
 ## Real-Time System with Pathway
 
 * Pathway ingests dataset using table\_from\_pandas
@@ -166,10 +155,19 @@ live pricing plot![download22222](https://github.com/user-attachments/assets/744
 
 ## Submission Components
 
-* Dynamic\_Pricing\_Pathway\_Final.ipynb: Fully-commented Jupyter notebook
-* pricing\_output.csv: Output file for visualizations
+* `Dynamic_Pricing_Pathway_Final.ipynb`: Fully-commented Jupyter notebook
+* `pricing_output.csv`: Output file for visualizations
 * Inline and simulated real-time plots in notebook using Plotly and Matplotlib
-* This report as README.md or supporting PDF
+* This report as `README.md`
+* Optional: PDF version of this document for upload
+
+---
+
+## Repository Access Requirements
+
+* Ensure your GitHub repository is set to **public**
+* Or explicitly share repository access with reviewers
+* All scripts and notebooks must run without errors in Google Colab or Jupyter
 
 ---
 
@@ -183,5 +181,4 @@ Planned enhancements include implementing Model 3 with competition-aware logic a
 
 ## Author
 
-DAWLAGAR SIDDARATH
-email : d.siddarth286@gmail.com
+DAWLAGAR SIDDARTH , d.sidarth286@gmail.com
