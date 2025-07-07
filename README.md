@@ -40,7 +40,7 @@ Static parking prices often lead to inefficiencies like overcrowding or underuti
 * **Libraries:** NumPy, Pandas, Matplotlib, Plotly, Bokeh
 * **Real-Time Framework:** Pathway
 * **Data Format:** CSV (stream simulated from static data)
-* **Execution Environment:** Jupyter Notebook / Google Colab
+* **Execution Environment:** Google Colab
 
 ---
 
@@ -64,7 +64,7 @@ graph TD
 3. Pathway simulates real-time stream ingestion using `table_from_pandas`.
 4. Pricing logic (Model 2 - Demand Function) is applied on-the-fly.
 5. Prices are written to `pricing_output.csv`.
-6. Prices are visualized using Plotly (for live) and Matplotlib (for static) plots.
+6. Prices are visualized using Plotly/bokeh (for live) and Matplotlib (for static) plots.
 
 ---
 
