@@ -61,7 +61,7 @@ Static parking prices often lead to inefficiencies like overcrowding or underuti
  Compute Pricing using Demand Function (Model 2)
          │
          ├──► Write to pricing_output.csv (streamed output)
-         └──► Push to Plotly/Matplotlib for visualization
+         └──► Push to Plotly/Matplotlib/bokeh for visualization
 ```
 
 ### Components:
