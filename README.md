@@ -150,9 +150,9 @@ Each component was weighted based on assumed real-world influence and scaled to 
 ---
 ## Sample Output Graph
 
-![Price Trends for Parking Lot](![download111111](https://github.com/user-attachments/assets/99050d3a-7cfc-46da-9c8a-cdc7eada6a04))
+Price Trends for Parking Lot![download111111](https://github.com/user-attachments/assets/99050d3a-7cfc-46da-9c8a-cdc7eada6a04)
 
-![live pricing plot]![download22222](https://github.com/user-attachments/assets/7448ca31-85fa-41d1-b09b-e4b004b44129)
+live pricing plot![download22222](https://github.com/user-attachments/assets/7448ca31-85fa-41d1-b09b-e4b004b44129)
 
 ---
 ## Real-Time System with Pathway
