@@ -1,60 +1,58 @@
-# SA-CAPSTONE-PROJECT
-# Smart Parking Dynamic Pricing Model
+# Dynamic Pricing for Urban Parking Lots using Pathway
 
 ## Project Overview
 
-This project aims to develop a dynamic pricing model for parking spaces that updates in real-time. The goal is to optimize parking prices based on various influencing factors to ensure efficient space utilization, manage demand, and maximize revenue, while providing a smooth and explainable pricing variation.
+This project develops a dynamic pricing model for urban parking spaces, designed to adjust prices in real-time based on various influencing factors. The primary goal is to optimize parking prices to ensure efficient space utilization, manage demand, and maximize revenue, while maintaining a smooth and explainable pricing variation.
 
-The system simulates real-time data ingestion and processing using Pathway, allowing for continuous price predictions and real-time visualization.
+The system simulates real-time data ingestion and processing using **Pathway**, allowing for continuous price predictions and output.
+
+## Background & Motivation
+
+Urban parking spaces are a limited and highly demanded resource. Static pricing often leads to either underutilization or overcrowding. This project addresses these challenges by simulating a real-time pricing system using:
+* Real-time streaming with Pathway
+* Demand-based pricing logic (Model 2)
+* Basic economic factors like queue length, traffic, and vehicle type
 
 ## Core Features
 
-* **Real-time Price Updates:** Prices are dynamically adjusted based on live data streams.
-* **Multi-factor Pricing Logic:**
-    * Historical occupancy patterns
+* **Real-time Price Calculation:** Prices are dynamically computed based on incoming data streams using Pathway.
+* **Multi-factor Pricing Logic (Demand-Based):** The pricing model incorporates current parking conditions, including:
+    * Occupancy rate
     * Queue length
     * Nearby traffic conditions
-    * Special events/days
+    * Special event indicators
     * Vehicle type
-    * Competitor parking prices (optional, advanced model)
-* **Base Price Integration:** All pricing starts from a base price of $10.
-* **Smooth & Explainable Price Variation:** Designed to avoid erratic price changes, ensuring transparency.
-* **Optional Rerouting Suggestions:** The system can suggest alternative nearby lots if the current lot is overburdened (part of Model 3).
-* **Real-time Data Simulation:** Utilizes Pathway for ingesting and processing data streams.
-* **Real-time Visualization:** Employs Bokeh for interactive, live dashboards.
+* **Base Price Integration:** All pricing calculations stem from a defined base price (e.g., $10).
+* **Output to CSV:** The computed real-time prices are continuously written to a `pricing_output.csv` file.
+* **Basic Visualization:** Includes a simple `matplotlib` plot to visualize price trends from the generated output CSV.
 
-## Pricing Models Implemented
+## Pricing Model Implemented
 
-The project implements three distinct pricing models, increasing in complexity:
-
-### Model 1: Baseline Linear Model
-
-A foundational model where the price for the next time step is a linear function of the previous price and the current occupancy rate.
-* **Formula Example:** `Price(t+1) = Price(t) + α * (Occupancy / Capacity)`
-* **Purpose:** Serves as a simple reference point to observe basic price elasticity.
+This notebook specifically implements a **Demand-Based Price Function (referred to as Model 2)**. This model constructs a mathematical demand function that incorporates multiple key features. The calculated demand then directly influences the price adjustment from the base price.
 
 ### Model 2: Demand-Based Price Function
 
-A more sophisticated model that constructs a mathematical demand function incorporating multiple key features. The calculated demand then directly influences the price adjustment from the base price.
-* **Demand Factors:** Occupancy rate, Queue length, Traffic level, Special day, Vehicle type.
-* **Demand Function Example:** `Demand = α·(Occupancy/Capacity) + β·QueueLength − γ·Traffic + δ·IsSpecialDay + ε·VehicleTypeWeight`
-* **Price Adjustment Example:** `Price(t) = BasePrice * (1 + λ * NormalizedDemand)`
-* **Constraints:** Ensures demand is normalized and price variations are smooth and bounded (e.g., between 0.5x and 2x the base price).
+This model dynamically calculates price based on a set formula using the incoming data.
 
-### Model 3 (Optional): Competitive Pricing Model
-
-This advanced model introduces location intelligence and simulates real-world competition by factoring in prices of nearby parking spaces.
-* **Logic:**
-    * Calculates geographic proximity of nearby parking spaces using Haversine distance.
-    * Determines competitor prices (using Model 2 logic for competitors).
-    * Adjusts own lot's price and potentially suggests rerouting based on lot fullness and competitor pricing strategies (e.g., if full and competitors are cheaper, suggests rerouting or slightly lowers price; if competitors are expensive, own price can increase).
+* **Demand Factors Used:** Occupancy, Capacity, QueueLength, TrafficConditionNearby, IsSpecialDay, and VehicleType.
+* **Traffic Mapping:**
+    * `low`: 1
+    * `medium`: 2
+    * `high`: 3
+* **Vehicle Type Weights:**
+    * `car`: 1.0
+    * `bike`: 0.7
+    * `truck`: 1.5
+* **Conceptual Demand Calculation (within `compute_price` UDF):**
+    `demand = (0.5 * (Occupancy / Capacity) + 0.3 * QueueLength - 0.2 * traffic + 0.1 * IsSpecialDay + 0.05 * vehicle_weight)`
+* **Price Calculation:** The demand is normalized (clamped between 0 and 1), and then the price is calculated as `round(10 * (1 + 0.2 * normalized), 2)`. This ensures prices fluctuate around the base price ($10) based on demand.
 
 ## Technology Stack
 
 * **Python:** Core programming language.
 * **Pandas & NumPy:** For data manipulation and numerical operations.
 * **Pathway:** For real-time data ingestion, stream processing, and continuous prediction emission.
-* **Bokeh:** For interactive, real-time data visualization.
+* **Matplotlib:** For basic visualization of price trends.
 
 ## Getting Started
 
@@ -66,53 +64,39 @@ To run this project, you will need a Google Colab environment and the `dataset.c
 2.  **Open a New Notebook:** Create a brand new Google Colab notebook.
 3.  **Install Dependencies:** Run the following commands in the first code cell of your Colab notebook to install all necessary libraries:
     ```bash
-    !pip install pandas numpy scipy pathway bokeh
+    !pip install pandas numpy scipy pathway matplotlib
     ```
     * **Important Note on Pathway:** If you encounter `AttributeError` issues with Pathway, please try running `!pip install pathway` in a **fresh Colab notebook** as the very first step. Environmental conflicts can occur.
 
-4.  **Copy Code:** Copy the code provided cell-by-cell (from Phase 1 to Phase 5) into corresponding cells in your Colab notebook.
+4.  **Copy Code:** Copy the code provided cell-by-cell from the `SA_CAPSTONE_PROJECT.ipynb` notebook into corresponding cells in your Colab notebook.
 
 ### Running the Project
 
-Follow the phase-by-phase structure provided:
+Follow the structure of the provided notebook:
 
-1.  **Phase 1: Data Preprocessing and Exploration:** Run these cells first to prepare your data.
-    * (Optional) Uncomment the `matplotlib` and `seaborn` plotting code in Phase 1, Cell 5 to visualize initial data insights.
-2.  **Phase 2: Pricing Model Development:** Run these cells to define the pricing functions. No output is expected, as these are function definitions.
-3.  **Phase 3: Real-Time Simulation with Pathway:**
-    * After running previous cells, go to **Phase 3, Cell 6**.
-    * **Uncomment the line `pw.run()`** to start the Pathway streaming pipeline.
-    * Observe the `final_output_stream.print()` output in real-time as data is processed.
-    * **Note:** The stateful implementation for Model 1 and the competitive logic for Model 3 within Pathway are conceptual demonstrations of how such operations would be structured. Full, production-ready implementation of complex state and spatial joins in Pathway would require more advanced patterns.
-4.  **Phase 4: Real-Time Visualization with Bokeh (Conceptual):**
-    * The Bokeh integration is **conceptual** and demonstrates how you *would* set up real-time dashboards.
-    * Running a true, live Bokeh server within Colab that dynamically updates from a Pathway stream is complex and typically requires port forwarding or dedicated server setup beyond simple script execution. The provided code gives you the structure for it.
-5.  **Phase 5: Reporting and Future Enhancements:** This section provides an outline for conceptual reporting and discusses potential future improvements to the system.
+1.  **Initial Setup and Data Loading:** Run the cells that import libraries, load `dataset.csv`, and perform initial data preprocessing (including `timestamp`, `lot_id` creation, and `dropna`).
+2.  **Define Pathway Schema and UDF:** Run the cells that define the `ParkingInput` schema and the `compute_price` Pathway UDF.
+3.  **Ingest Data and Compute Prices with Pathway:** Run the cells that use `pw.debug.table_from_pandas` to ingest your prepared DataFrame into Pathway and apply the `compute_price` UDF to create a `pricing` stream.
+4.  **Write Output:** Run the cell that uses `pw.io.csv.write` to specify the output CSV file (`pricing_output.csv`).
+5.  **Start Pathway Execution:** **Uncomment and run the `pw.run()` cell**. This will start the Pathway pipeline, process the data, and continuously write the pricing results to `pricing_output.csv`.
+6.  **Visualize Results:** Run the final cells that use `matplotlib` to load `pricing_output.csv` and plot the price trends for a selected parking lot.
 
-## Project Structure (by Provided Cells)
+## Assumptions Made in the Notebook
 
-The project code is structured into the following conceptual phases:
+* **Dataset Availability:** Assumes the `dataset.csv` file is present in the Colab environment with expected columns (`LastUpdatedDate`, `LastUpdatedTime`, `SystemCodeNumber`, `Occupancy`, `Capacity`, `QueueLength`, `TrafficConditionNearby`, `IsSpecialDay`, `VehicleType`, `Latitude`, `Longitude`).
+* **Vehicle Type Weights:** `car = 1.0`, `bike = 0.7`, `truck = 1.5`.
+* **Traffic Mapping:** `low = 1`, `medium = 2`, `high = 3`.
+* **Base Price:** The base price for calculations is hardcoded as `10`.
+* **Coefficients:** The coefficients in the `demand` calculation (e.g., `0.5`, `0.3`, `-0.2`, `0.1`, `0.05`) are fixed for demonstration.
+* **Simulated Stream:** `pw.debug.table_from_pandas` is used to simulate a real-time stream from a static DataFrame.
 
-* **Phase 1: Data Preprocessing and Exploration:** Loading, cleaning, feature engineering (`Timestamp`, `IsSpecialDay`, `VehicleType`), and initial EDA.
-* **Phase 2: Pricing Model Development:** Python functions for `Model 1 (Baseline Linear)`, `Model 2 (Demand-Based)`, and `Model 3 (Competitive)`. Includes necessary constants and mappings.
-* **Phase 3: Real-Time Simulation with Pathway:** Ingesting data into Pathway, applying UDFs for Model 1 (conceptual state), Model 2, and Model 3 (conceptual complex joins), and demonstrating Pathway's `print` sink.
-* **Phase 4: Real-Time Visualization with Bokeh:** Conceptual framework for setting up Bokeh plots and updating them in a real-time server environment.
-* **Phase 5: Reporting and Future Enhancements:** Discussion points for generating reports (performance, anomalies, business insights) and outlining potential next steps for the project.
+## Future Enhancements (Conceptual)
 
-## Assumptions & Limitations
+While not fully implemented in the provided notebook, future directions for this project could include:
 
-* **Dataset:** Assumes the availability and structure of `dataset.csv` as provided.
-* **Pathway Environment:** Requires a stable Pathway installation. Environmental issues are outside the scope of direct AI troubleshooting.
-* **Conceptual Complexity:** Some advanced Pathway operations (e.g., complex state management for Model 1's `previous_price`, true spatial joins for Model 3 across a global state) and Bokeh real-time server setup are described conceptually due to their complexity in a simple Colab environment.
-* **Model Parameters:** Coefficients (alpha, beta, gamma, etc.) for the pricing models are set as constants for demonstration. In a real-world scenario, these would be tuned using historical data, optimization algorithms, or A/B testing.
-* **`IsSpecialDay`:** Currently a dummy feature; in production, this would be derived from a comprehensive holiday calendar or event API.
-
-## Future Enhancements
-
-* **Data Source Integration:** Connect Pathway to live data sources (e.g., Kafka, MQTT, cloud storage events) for true real-time ingestion.
-* **Machine Learning Models:** Implement more advanced ML models (e.g., ARIMA for demand forecasting, Reinforcement Learning for dynamic pricing optimization).
-* **Optimization:** Use linear programming or other optimization techniques to determine optimal pricing strategies given constraints.
-* **User Interface:** Develop a full-stack web application for end-users and administrators to interact with the system.
-* **Deployment:** Deploy the Pathway pipeline on robust cloud infrastructure (AWS, GCP, Azure) for scalability and fault tolerance.
-* **Comprehensive Monitoring:** Implement detailed logging, metrics, and alerting for the entire system.
-* **A/B Testing Framework:** Systematically test different pricing strategies against each other.
+* **Full Implementation of Other Models:** Integrate `Model 1 (Baseline Linear)` and `Model 3 (Competitive Pricing)` with Pathway's stateful and join capabilities, which would involve more complex Pathway operations for `previous_price` and spatial lookups.
+* **Live Data Source Integration:** Connect Pathway to actual live data streams (e.g., Kafka, IoT platforms) for continuous, real-time operation.
+* **Advanced Analytics:** Incorporate more sophisticated machine learning models for predictive analytics (e.g., predicting future occupancy) to inform pricing decisions.
+* **Interactive Dashboard:** Develop a comprehensive, real-time interactive dashboard using Bokeh (beyond the basic `matplotlib` plot) or other visualization libraries, connected directly to the Pathway stream.
+* **Optimization Algorithms:** Implement algorithms to optimize pricing for revenue maximization or demand management, possibly using Reinforcement Learning.
+* **Deployment:** Set up the Pathway pipeline on a scalable cloud infrastructure for production use.
